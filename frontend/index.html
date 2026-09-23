@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>TSP - Agente Viajero</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Problema del Agente Viajero — Fuerza Bruta</h1>
+  </header>
+
+  <main>
+    <!-- Paso 1: configuración del grafo -->
+    <section id="panel-config" class="panel">
+      <h2>1. Configurar grafo</h2>
+      <label>
+        Número de nodos (5 - 10):
+        <input type="number" id="input-n" min="5" max="10" value="5">
+      </label>
+
+      <div class="botones">
+        <button id="btn-manual">Generar manualmente</button>
+        <button id="btn-aleatorio">Generar aleatorio</button>
+      </div>
+
+      <div id="zona-manual" class="oculto">
+        <p>Agregue aristas (origen, destino, peso):</p>
+        <input type="number" id="in-origen" placeholder="Origen (0-based)">
+        <input type="number" id="in-destino" placeholder="Destino (0-based)">
+        <input type="number" id="in-peso" placeholder="Peso">
+        <button id="btn-agregar-arista">Agregar arista</button>
+      </div>
+
+      <button id="btn-validar" class="accion-principal">Validar grafo</button>
+      <p id="mensaje-validacion"></p>
+    </section>
+
+    <!-- Paso 2: visualización del grafo -->
+    <section id="panel-grafo" class="panel">
+      <h2>2. Grafo generado</h2>
+      <canvas id="canvas-grafo" width="500" height="400"></canvas>
+    </section>
+
+    <!-- Paso 3: ejecución paso a paso -->
+    <section id="panel-ejecucion" class="panel">
+      <h2>3. Ejecución del algoritmo</h2>
+      <button id="btn-resolver" class="accion-principal">Resolver TSP</button>
+
+      <div id="zona-pasos" class="oculto">
+        <p id="texto-paso">—</p>
+        <div class="botones">
+          <button id="btn-paso-anterior">&larr; Anterior</button>
+          <span id="contador-paso"></span>
+          <button id="btn-paso-siguiente">Siguiente &rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paso 4: resultado final -->
+    <section id="panel-resultado" class="panel oculto">
+      <h2>4. Resultado óptimo</h2>
+      <p id="texto-resultado"></p>
+    </section>
+  </main>
+
+  <script src="js/grafico.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
