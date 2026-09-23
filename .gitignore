@@ -17,3 +17,7 @@ __pycache__/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Compilacion
+build/
+dist/
