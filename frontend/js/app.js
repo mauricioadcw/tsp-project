@@ -247,9 +247,13 @@ window.addEventListener("pywebviewready", () => {
       textoResultado.textContent =
         `Ciclo óptimo: ${rutaLetras} (costo = ${paso.ciclo_optimo.costo}) ` +
         `de ${paso.total_ciclos} ciclos hamiltonianos encontrados.`;
-      dibujarGrafo(grafoActual, paso.ciclo_optimo.ruta);
+      dibujarGrafo(grafoActual, paso.ciclo_optimo.ruta, null);
+    } else if (paso.tipo === "evaluacion" && paso.ruta) {
+      panelResultado.classList.add("oculto");
+      dibujarGrafo(grafoActual, null, paso.ruta);
     } else {
       panelResultado.classList.add("oculto");
+      dibujarGrafo(grafoActual, null, null);
     }
   }
 });
