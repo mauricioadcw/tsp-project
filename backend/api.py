@@ -1,11 +1,8 @@
 """
-/backend/api.py
-
-Clase puente entre el frontend (JS) y backend (Python).
-Cada metodo publico de esta clase queda expuesto en JS como
+api.py
+Clase puente entre el frontend (JS) y la lógica de negocio (Python).
+Cada método público de esta clase queda expuesto en JS como
 window.pywebview.api.<nombre_metodo>(...)
-
-Abreviatura del problema: Traveling Salesman Problem (TSP)
 """
 
 from backend.grafo import Grafo
@@ -18,11 +15,11 @@ class Api:
         self.resolver_tsp = None
 
     # ---------------------------------------------------------
-    # Construccion del grafo
+    # Construcción del grafo
     # ---------------------------------------------------------
 
     def crear_grafo(self, n):
-        """Inicializa un grafo vacio de n nodos. Llamado al elegir modo manual."""
+        """Inicializa un grafo vacío de n nodos. Llamado al elegir modo manual."""
         self.grafo = Grafo(int(n))
         return {"ok": True, "n": self.grafo.n}
 
@@ -37,7 +34,7 @@ class Api:
             return {"ok": False, "error": str(e)}
 
     def generar_grafo_aleatorio(self, n, densidad=0.7):
-        """Genera un grafo aleatorio valido de n nodos."""
+        """Genera un grafo aleatorio válido de n nodos."""
         self.grafo = Grafo(int(n))
         self.grafo.generar_aleatorio(densidad=float(densidad))
         return {"ok": True, "grafo": self.grafo.a_dict()}
@@ -48,7 +45,7 @@ class Api:
         return {"ok": True, "grafo": self.grafo.a_dict()}
 
     # ---------------------------------------------------------
-    # Validacion
+    # Validación
     # ---------------------------------------------------------
 
     def validar_hamiltoniano(self):
@@ -60,15 +57,29 @@ class Api:
             return {"ok": False, "error": "No hay grafo creado"}
 
         valido, faltantes = self.grafo.existe_ciclo_hamiltoniano()
-        sugerencias = [
-            f"{chr(65+i)}-{chr(65+j)}"
-            for (i, j) in faltantes if isinstance((i, j), tuple)
-        ] if not valido else []
 
-        return {"ok": True, "valido": valido, "sugerencias": sugerencias}
+        sugerencias = []
+        mensaje_extra = None
+        for item in faltantes:
+            if isinstance(item, tuple):
+                i, j = item
+                sugerencias.append(f"{chr(65+i)}-{chr(65+j)}")
+            elif item == "grafo_desconexo":
+                mensaje_extra = "El grafo no es conexo (hay nodos aislados o sin ruta entre subgrupos)."
+            elif item == "sin_ciclo_hamiltoniano":
+                mensaje_extra = ("El grafo cumple los requisitos mínimos de grado y conectividad, "
+                                  "pero no contiene ningún ciclo hamiltoniano real. "
+                                  "Pruebe agregar más aristas.")
+
+        return {
+            "ok": True,
+            "valido": valido,
+            "sugerencias": sugerencias,
+            "mensaje_extra": mensaje_extra,
+        }
 
     # ---------------------------------------------------------
-    # Resolucion TSP
+    # Resolución TSP
     # ---------------------------------------------------------
 
     def resolver_tsp_completo(self):

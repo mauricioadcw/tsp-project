@@ -68,12 +68,17 @@ window.addEventListener("pywebviewready", () => {
       return;
     }
     if (res.valido) {
-      mensajeValidacion.textContent = "✅ El grafo admite ciclos hamiltonianos.";
+      mensajeValidacion.textContent = "✅ El grafo contiene al menos un ciclo hamiltoniano.";
       mensajeValidacion.style.color = "#16803c";
     } else {
-      mensajeValidacion.textContent =
-        "⚠️ El grafo no garantiza un ciclo hamiltoniano. Sugerencias: " +
-        res.sugerencias.join(", ");
+      let texto = "⚠️ El grafo no admite un ciclo hamiltoniano.";
+      if (res.sugerencias.length > 0) {
+        texto += " Aristas sugeridas: " + res.sugerencias.join(", ");
+      }
+      if (res.mensaje_extra) {
+        texto += " " + res.mensaje_extra;
+      }
+      mensajeValidacion.textContent = texto;
       mensajeValidacion.style.color = "#b91c1c";
     }
   });

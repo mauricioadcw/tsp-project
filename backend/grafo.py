@@ -63,29 +63,79 @@ class Grafo:
 
     def existe_ciclo_hamiltoniano(self):
         """
-        Verificación rápida de factibilidad (condición necesaria, no
-        suficiente) antes de correr la fuerza bruta completa:
-        - El grafo debe ser conexo
-        - Cada nodo debe tener grado >= 2
-        Devuelve (bool, lista_de_aristas_faltantes_sugeridas)
+        Validación en dos etapas:
+
+        1. Chequeo rápido (condición NECESARIA, no suficiente):
+           - El grafo debe ser conexo
+           - Cada nodo debe tener grado >= 2
+           Si falla aquí, se corta de inmediato y se sugieren aristas,
+           sin necesidad de explorar nada más.
+
+        2. Chequeo exacto (backtracking): solo se ejecuta si el
+           chequeo rápido pasa. Busca un ciclo hamiltoniano real
+           deteniéndose apenas encuentra el primero (no explora todo
+           el espacio, a diferencia de la resolución completa en
+           tsp_fuerza_bruta.py, que sí necesita evaluarlos todos para
+           encontrar el óptimo).
+
+        Devuelve (bool, lista_de_sugerencias)
         """
         faltantes = []
 
-        # Verificar grado mínimo 2 en cada nodo
+        # --- Etapa 1: chequeo rápido ---
         for i in range(self.n):
             grado = sum(1 for j in range(self.n) if self.matriz[i][j] is not None)
             if grado < 2:
-                # Sugerir conectar con el siguiente nodo disponible
                 for j in range(self.n):
                     if j != i and self.matriz[i][j] is None:
                         faltantes.append((i, j))
                         break
 
-        # Verificar conectividad (BFS)
         if not self._es_conexo():
             faltantes.append("grafo_desconexo")
 
-        return (len(faltantes) == 0, faltantes)
+        if faltantes:
+            return (False, faltantes)
+
+        # --- Etapa 2: chequeo exacto con backtracking ---
+        if self._existe_ciclo_backtracking():
+            return (True, [])
+
+        # El chequeo rápido pasó pero no existe ciclo real: no hay una
+        # "arista faltante" única que lo arregle (el problema es
+        # estructural), así que se informa de forma genérica.
+        return (False, ["sin_ciclo_hamiltoniano"])
+
+    def _existe_ciclo_backtracking(self):
+        """
+        Búsqueda con poda que confirma la existencia de al menos un
+        ciclo hamiltoniano, sin generar todas las permutaciones.
+        Fija el nodo 0 como inicio para reducir el espacio de búsqueda.
+        """
+        visitado = [False] * self.n
+        camino = [0]
+        visitado[0] = True
+        return self._backtrack(camino, visitado)
+
+    def _backtrack(self, camino, visitado):
+        if len(camino) == self.n:
+            # ¿Se puede cerrar el ciclo volviendo al nodo inicial?
+            return self.matriz[camino[-1]][camino[0]] is not None
+
+        actual = camino[-1]
+        for siguiente in range(self.n):
+            if not visitado[siguiente] and self.matriz[actual][siguiente] is not None:
+                visitado[siguiente] = True
+                camino.append(siguiente)
+
+                if self._backtrack(camino, visitado):
+                    return True
+
+                # Deshacer (backtrack)
+                camino.pop()
+                visitado[siguiente] = False
+
+        return False
 
     def _es_conexo(self):
         visitados = set()
