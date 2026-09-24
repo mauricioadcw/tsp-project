@@ -19,6 +19,7 @@
         Número de nodos (5 - 10):
         <input type="number" id="input-n" min="5" max="10" value="5">
       </label>
+      <p id="mensaje-n" class="mensaje-error"></p>
 
       <div class="botones">
         <button id="btn-manual">Generar manualmente</button>
@@ -26,11 +27,15 @@
       </div>
 
       <div id="zona-manual" class="oculto">
-        <p>Agregue aristas (origen, destino, peso):</p>
-        <input type="number" id="in-origen" placeholder="Origen (0-based)">
-        <input type="number" id="in-destino" placeholder="Destino (0-based)">
-        <input type="number" id="in-peso" placeholder="Peso">
-        <button id="btn-agregar-arista">Agregar arista</button>
+        <p>Agregue aristas (seleccione origen, destino y peso):</p>
+        <div class="botones">
+          <select id="in-origen"></select>
+          <select id="in-destino"></select>
+          <input type="number" id="in-peso" placeholder="Peso" min="1" step="1">
+          <button id="btn-agregar-arista">Agregar arista</button>
+        </div>
+        <p id="mensaje-arista" class="mensaje-error"></p>
+        <ul id="lista-aristas"></ul>
       </div>
 
       <button id="btn-validar" class="accion-principal">Validar grafo</button>
@@ -46,7 +51,8 @@
     <!-- Paso 3: ejecución paso a paso -->
     <section id="panel-ejecucion" class="panel">
       <h2>3. Ejecución del algoritmo</h2>
-      <button id="btn-resolver" class="accion-principal">Resolver TSP</button>
+      <button id="btn-resolver" class="accion-principal" disabled>Resolver TSP</button>
+      <p class="ayuda">Valide el grafo antes de resolver.</p>
 
       <div id="zona-pasos" class="oculto">
         <p id="texto-paso">—</p>

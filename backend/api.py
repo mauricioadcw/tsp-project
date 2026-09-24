@@ -20,7 +20,10 @@ class Api:
 
     def crear_grafo(self, n):
         """Inicializa un grafo vacío de n nodos. Llamado al elegir modo manual."""
-        self.grafo = Grafo(int(n))
+        try:
+            self.grafo = Grafo(int(n))
+        except (ValueError, TypeError):
+            return {"ok": False, "error": "n debe ser un entero entre 5 y 10"}
         return {"ok": True, "n": self.grafo.n}
 
     def agregar_arista(self, i, j, peso):
@@ -29,8 +32,18 @@ class Api:
             return {"ok": False, "error": "Primero debe crear el grafo"}
         try:
             self.grafo.agregar_arista(int(i), int(j), float(peso))
-            return {"ok": True}
-        except ValueError as e:
+            return {"ok": True, "grafo": self.grafo.a_dict()}
+        except (ValueError, TypeError) as e:
+            return {"ok": False, "error": str(e)}
+
+    def eliminar_arista(self, i, j):
+        """Elimina una arista previamente agregada en modo manual."""
+        if self.grafo is None:
+            return {"ok": False, "error": "Primero debe crear el grafo"}
+        try:
+            self.grafo.eliminar_arista(int(i), int(j))
+            return {"ok": True, "grafo": self.grafo.a_dict()}
+        except (ValueError, TypeError) as e:
             return {"ok": False, "error": str(e)}
 
     def generar_grafo_aleatorio(self, n, densidad=0.7):

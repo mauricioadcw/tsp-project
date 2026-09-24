@@ -31,8 +31,21 @@ class Grafo:
         """Agrega una arista no dirigida entre i y j con el peso dado."""
         if i == j:
             raise ValueError("No se permiten auto-ciclos (i == j)")
+        if not (0 <= i < self.n and 0 <= j < self.n):
+            raise ValueError("Índice de nodo fuera de rango")
+        if peso <= 0:
+            raise ValueError("El peso debe ser un número positivo")
+        if self.matriz[i][j] is not None:
+            raise ValueError(f"La arista {chr(65+i)}-{chr(65+j)} ya existe")
         self.matriz[i][j] = peso
         self.matriz[j][i] = peso
+
+    def eliminar_arista(self, i, j):
+        """Elimina la arista entre i y j, si existe."""
+        if self.matriz[i][j] is None:
+            raise ValueError("Esa arista no existe")
+        self.matriz[i][j] = None
+        self.matriz[j][i] = None
 
     def generar_aleatorio(self, densidad=0.7, peso_min=1, peso_max=20):
         """

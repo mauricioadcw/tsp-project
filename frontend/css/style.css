@@ -85,6 +85,55 @@ input[type="number"] {
   font-weight: 600;
 }
 
+.mensaje-error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  min-height: 1.1rem;
+  margin: 0.2rem 0 0.6rem 0;
+}
+
+.ayuda {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0.3rem 0;
+}
+
+button:disabled {
+  background: #d1d5db;
+  color: #888;
+  cursor: not-allowed;
+}
+
+select {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#lista-aristas {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+#lista-aristas li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+}
+
+#lista-aristas button {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+}
+
 #texto-resultado {
   font-size: 1.1rem;
   font-weight: 600;
