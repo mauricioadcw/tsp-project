@@ -83,7 +83,7 @@ Para generar un ejecutable de Windows que no requiera tener Python instalado:
 ```powershell
 pip install pyinstaller
 
-pyinstaller --name tsp-project --onefile --add-data "frontend;frontend" main.py
+pyinstaller --name tsp-project --onefile --noconsole --add-data "frontend;frontend" main.py
 ```
 
 El ejecutable queda en `dist\tsp-project.exe`.
@@ -96,6 +96,12 @@ webview.start(debug=False)
 ```
 
 **Notas:**
+- `--noconsole` (alias `--windowed`) oculta la ventana de consola negra
+  que aparece por defecto detrás de la app. Recomendado: probar primero
+  SIN este flag para ver cualquier error de arranque en la consola; una
+  vez confirmado que abre bien, volver a empaquetar CON `--noconsole`
+  para la versión que se entrega/distribuye. Con `--noconsole` activo,
+  si algo falla al iniciar no se verá ningún mensaje de error.
 - `--add-data "frontend;frontend"` empaqueta la carpeta `frontend/` dentro
   del ejecutable; en Windows el separador es `;` (en Mac/Linux sería `:`).
 - `main.py` ya resuelve las rutas de forma compatible con PyInstaller
