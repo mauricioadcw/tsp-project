@@ -34,7 +34,7 @@ def main():
         height=750,
         min_size=(900, 600),
     )
-    webview.start(debug=False)  # cambiar a True solo para depurar localmente
+    webview.start(debug=True)
 
 
 if __name__ == "__main__":
