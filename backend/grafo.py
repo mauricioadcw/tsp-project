@@ -178,3 +178,19 @@ class Grafo:
                 if self.matriz[i][j] is not None:
                     aristas.append({"origen": i, "destino": j, "peso": self.matriz[i][j]})
         return {"n": self.n, "aristas": aristas}
+
+    def matriz_costos(self):
+        """
+        Devuelve la matriz de costos completa (n x n) tal como la pide
+        el enunciado: 'el sistema construirá la matriz de costos'.
+        Las celdas sin arista se representan como None (el frontend
+        las muestra como '-'); la diagonal siempre es None.
+        """
+        return {
+            "n": self.n,
+            "etiquetas": [chr(65 + i) for i in range(self.n)],
+            "filas": [
+                [self.matriz[i][j] for j in range(self.n)]
+                for i in range(self.n)
+            ]
+        }

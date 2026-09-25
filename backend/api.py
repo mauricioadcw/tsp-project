@@ -57,6 +57,12 @@ class Api:
             return {"ok": False, "error": "No hay grafo creado"}
         return {"ok": True, "grafo": self.grafo.a_dict()}
 
+    def obtener_matriz_costos(self):
+        """Matriz de costos n x n, para la tabla que pide el enunciado."""
+        if self.grafo is None:
+            return {"ok": False, "error": "No hay grafo creado"}
+        return {"ok": True, "matriz": self.grafo.matriz_costos()}
+
     # ---------------------------------------------------------
     # Validación
     # ---------------------------------------------------------
@@ -113,3 +119,43 @@ class Api:
         if paso is None:
             return {"ok": False, "error": "Índice fuera de rango"}
         return {"ok": True, "paso": paso, "total_pasos": len(self.resolver_tsp.pasos)}
+
+    def saltar_a_ruta(self, indice_ruta):
+        """
+        Traduce 'ruta número N' (tal como se numera en la tabla, 0-based
+        sobre TODAS las permutaciones evaluadas) al índice interno de
+        pasos, y devuelve ese paso directamente. Usado por el input
+        'ir a la ruta N' del modo paso a paso.
+        """
+        if self.resolver_tsp is None:
+            return {"ok": False, "error": "Debe ejecutar resolver_tsp_completo primero"}
+
+        indice_pasos = self.resolver_tsp.buscar_paso_por_indice_ruta(int(indice_ruta))
+        if indice_pasos is None:
+            return {"ok": False, "error": "Número de ruta fuera de rango"}
+
+        paso = self.resolver_tsp.obtener_paso(indice_pasos)
+        return {
+            "ok": True,
+            "paso": paso,
+            "indice_pasos": indice_pasos,
+            "total_pasos": len(self.resolver_tsp.pasos)
+        }
+
+    # ---------------------------------------------------------
+    # Tabla comparativa de ciclos (paginada)
+    # ---------------------------------------------------------
+
+    def obtener_tabla_ciclos(self, modo="mejores", pagina=1, tamano_pagina=10):
+        """
+        Página de la tabla de ciclos hamiltonianos válidos.
+        modo: "mejores" | "peores" | "orden_generacion"
+        tamano_pagina: 10/20/30/50/100, o -1 para 'ver todo'
+        """
+        if self.resolver_tsp is None:
+            return {"ok": False, "error": "Debe ejecutar resolver_tsp_completo primero"}
+
+        resultado = self.resolver_tsp.obtener_pagina_ciclos(
+            modo=modo, pagina=int(pagina), tamano_pagina=int(tamano_pagina)
+        )
+        return {"ok": True, **resultado}
