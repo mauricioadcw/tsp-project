@@ -61,23 +61,67 @@ python main.py
    etapas: un chequeo rápido (grado mínimo 2 + conectividad) y, si ese pasa,
    una confirmación exacta por backtracking. Solo si es válido se habilita
    la resolución.
-3. **Resolver TSP** — se ejecuta la fuerza bruta: se generan las permutaciones
+3. **Matriz de costos** — al validar correctamente, se muestra la matriz n×n
+   con los pesos entre cada par de nodos.
+4. **Resolver TSP** — se ejecuta la fuerza bruta: se generan las permutaciones
    de nodos (fijando el nodo 0 como origen/destino para evitar ciclos
    equivalentes por rotación), se valida cada una contra las aristas
    existentes y se calcula su costo.
-4. **Paso a paso** — el usuario avanza por cada ruta evaluada usando los
-   botones Anterior/Siguiente. La ruta en evaluación se resalta en el grafo
-   en color ámbar, junto con su validez y costo.
-5. **Resultado** — se muestra el ciclo óptimo, su costo, el total de ciclos
-   hamiltonianos encontrados, y se resalta en verde sobre el grafo.
+5. **Paso a paso** — el usuario avanza por cada ruta evaluada con los botones
+   Anterior/Siguiente, con reproducción automática (velocidad configurable)
+   o saltando directo a una ruta por número. La ruta en evaluación se resalta
+   en el grafo en color ámbar.
+6. **Resultado y tabla comparativa** — se muestra el ciclo óptimo resaltado
+   en verde sobre el grafo, junto con una tabla paginada de todos los ciclos
+   hamiltonianos encontrados (ordenable por mejores/peores/orden de
+   generación, con opción de ver todos).
+
+## Empaquetar como ejecutable (.exe)
+
+Para generar un ejecutable de Windows que no requiera tener Python instalado:
+
+```powershell
+pip install pyinstaller
+
+pyinstaller --name tsp-project --onefile --add-data "frontend;frontend" main.py
+```
+
+El ejecutable queda en `dist\tsp-project.exe`.
+
+**Antes de empaquetar la versión final**, desactivar el modo debug en
+`main.py` (que habilita las DevTools, útiles solo en desarrollo):
+
+```python
+webview.start(debug=False)
+```
+
+**Notas:**
+- `--add-data "frontend;frontend"` empaqueta la carpeta `frontend/` dentro
+  del ejecutable; en Windows el separador es `;` (en Mac/Linux sería `:`).
+- `main.py` ya resuelve las rutas de forma compatible con PyInstaller
+  (ver función `ruta_recurso()`), así que no requiere cambios adicionales
+  para funcionar empaquetado.
+- pywebview en Windows usa el motor WebView2, que viene preinstalado en
+  versiones modernas de Windows 10/11. Si el ejecutable no abre en otra
+  máquina, verificar que tenga WebView2 Runtime instalado.
+- PyInstaller debe correrse en Windows para generar un `.exe` de Windows
+  (no es posible generarlo desde Linux/Mac de forma nativa).
+
+Probar siempre `dist\tsp-project.exe` directamente antes de distribuirlo,
+para confirmar que carga la interfaz correctamente fuera del entorno de
+desarrollo.
 
 ## Estado actual (avance semana 6)
 
 - [x] Generación de grafo manual y aleatoria
 - [x] Validación exacta de hamiltonicidad (backtracking)
 - [x] Algoritmo de fuerza bruta con historial de pasos
-- [x] Interfaz interactiva paso a paso con resaltado visual
+- [x] Matriz de costos visible
+- [x] Tabla comparativa de ciclos (paginada, mejores/peores/orden de generación)
+- [x] Interfaz interactiva paso a paso con resaltado visual, reproducción
+      automática y salto directo a una ruta
 - [x] Manejo de errores en inputs (n fuera de rango, aristas duplicadas/inválidas)
+- [ ] Empaquetar versión final como .exe (con debug=False)
 - [ ] Redactar informe: introducción, objetivo, metodología con capturas
       de código en formato APA (ver ejemplo de "Teoría de Juegos")
 - [ ] Bibliografía sobre TSP y algoritmos de fuerza bruta
