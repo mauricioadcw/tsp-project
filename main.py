@@ -34,7 +34,7 @@ def main():
         height=750,
         min_size=(900, 600),
     )
-    webview.start(debug=True)
+    webview.start(debug=False)
 
 
 if __name__ == "__main__":
