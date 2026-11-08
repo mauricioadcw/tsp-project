@@ -70,50 +70,57 @@ python main.py
 5. **Paso a paso** — el usuario avanza por cada ruta evaluada con los botones
    Anterior/Siguiente, con reproducción automática (velocidad configurable)
    o saltando directo a una ruta por número. La ruta en evaluación se resalta
-   en el grafo en color ámbar.
+   en el grafo en color ámbar, cada nodo muestra su orden de visita y las
+   aristas que la ruta necesita pero no existen se dibujan punteadas en rojo.
 6. **Resultado y tabla comparativa** — se muestra el ciclo óptimo resaltado
    en verde sobre el grafo, junto con una tabla paginada de todos los ciclos
    hamiltonianos encontrados (ordenable por mejores/peores/orden de
-   generación, con opción de ver todos).
+   generación, con opción de ver todos). El "#" de cada fila coincide con
+   el campo "Ir a la ruta N.º"; al hacer clic en una fila, la app salta a
+   ese paso del recorrido y lo resalta en el grafo (en verde si el ciclo
+   tiene el costo óptimo, en ámbar en los demás casos).
 
 ## Empaquetar como ejecutable (.exe)
 
-Para generar un ejecutable de Windows que no requiera tener Python instalado:
+El ejecutable se genera con [Nuitka](https://nuitka.net), que traduce el
+código Python a C y lo compila a un binario nativo. Debe correrse en
+Windows para obtener un `.exe` de Windows.
 
 ```powershell
-pip install pyinstaller
+pip install nuitka
 
-pyinstaller --name tsp-project --onefile --noconsole --add-data "frontend;frontend" main.py
+python -m nuitka --mode=onefile --windows-console-mode=disable --include-data-dir=frontend=frontend --output-filename=TSP-AgenteViajero.exe main.py
 ```
 
-El ejecutable queda en `dist\tsp-project.exe`.
-
-**Antes de empaquetar la versión final**, desactivar el modo debug en
-`main.py` (que habilita las DevTools, útiles solo en desarrollo):
-
-```python
-webview.start(debug=False)
-```
+El ejecutable queda junto a `main.py` como `TSP-AgenteViajero.exe`.
 
 **Notas:**
-- `--noconsole` (alias `--windowed`) oculta la ventana de consola negra
-  que aparece por defecto detrás de la app. Recomendado: probar primero
-  SIN este flag para ver cualquier error de arranque en la consola; una
-  vez confirmado que abre bien, volver a empaquetar CON `--noconsole`
-  para la versión que se entrega/distribuye. Con `--noconsole` activo,
-  si algo falla al iniciar no se verá ningún mensaje de error.
-- `--add-data "frontend;frontend"` empaqueta la carpeta `frontend/` dentro
-  del ejecutable; en Windows el separador es `;` (en Mac/Linux sería `:`).
-- `main.py` ya resuelve las rutas de forma compatible con PyInstaller
-  (ver función `ruta_recurso()`), así que no requiere cambios adicionales
-  para funcionar empaquetado.
+- La primera compilación tarda varios minutos. Nuitka puede pedir permiso
+  para descargar Dependency Walker y, si no hay un compilador de C
+  instalado, MinGW; ambos se guardan en caché.
+- `--include-data-dir=frontend=frontend` copia la carpeta `frontend/`
+  dentro del ejecutable como archivos de datos (no se compilan).
+- `--windows-console-mode=disable` oculta la consola negra. Recomendado:
+  probar primero SIN este flag para ver cualquier error de arranque; una
+  vez confirmado que abre bien, compilar CON el flag para la versión que
+  se entrega. Con el flag activo, si algo falla al iniciar no se verá
+  ningún mensaje de error.
+- No agregar `--include-package=webview`: choca con la regla interna de
+  Nuitka para pywebview y la compilación falla. Los archivos de datos de
+  pywebview ya los incluye Nuitka por su cuenta.
+- `main.py` ya usa `webview.start(debug=False)` y resuelve las rutas con
+  `ruta_recurso()`, que también funciona en el ejecutable compilado.
 - pywebview en Windows usa el motor WebView2, que viene preinstalado en
-  versiones modernas de Windows 10/11. Si el ejecutable no abre en otra
-  máquina, verificar que tenga WebView2 Runtime instalado.
-- PyInstaller debe correrse en Windows para generar un `.exe` de Windows
-  (no es posible generarlo desde Linux/Mac de forma nativa).
+  Windows 11 y en versiones modernas de Windows 10. Si el ejecutable no
+  abre en otra máquina, verificar que tenga WebView2 Runtime instalado.
+- Algunos antivirus marcan como sospechoso el modo de archivo único. Si
+  pasa, compilar con `--mode=standalone` (genera una carpeta con el
+  ejecutable y sus librerías, y arranca más rápido).
+- Las carpetas generadas (`main.build/`, `main.dist/`, `main.onefile-build/`)
+  y el `.exe` no se suben al repositorio (están en `.gitignore`). Para
+  compartir el ejecutable, adjuntarlo en una *Release* del repositorio.
 
-Probar siempre `dist\tsp-project.exe` directamente antes de distribuirlo,
+Probar siempre `TSP-AgenteViajero.exe` directamente antes de distribuirlo,
 para confirmar que carga la interfaz correctamente fuera del entorno de
 desarrollo.
 
@@ -127,7 +134,8 @@ desarrollo.
 - [x] Interfaz interactiva paso a paso con resaltado visual, reproducción
       automática y salto directo a una ruta
 - [x] Manejo de errores en inputs (n fuera de rango, aristas duplicadas/inválidas)
-- [ ] Empaquetar versión final como .exe (con debug=False)
+- [x] Rediseño de la interfaz (panel lateral de procedimiento + área de trabajo)
+- [ ] Empaquetar versión final como .exe con Nuitka (con debug=False)
 - [ ] Redactar informe: introducción, objetivo, metodología con capturas
       de código en formato APA (ver ejemplo de "Teoría de Juegos")
 - [ ] Bibliografía sobre TSP y algoritmos de fuerza bruta

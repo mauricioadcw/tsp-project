@@ -21,3 +21,9 @@ Thumbs.db
 # Compilacion
 build/
 dist/
+main.build/
+main.dist/
+main.onefile-build/
+
+# Ejecutables
+*.exe

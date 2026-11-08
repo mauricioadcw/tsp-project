@@ -2,112 +2,122 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TSP - Agente Viajero</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
   <header>
-    <h1>Problema del Agente Viajero — Fuerza Bruta</h1>
+    <h1>Problema del agente viajero</h1>
+    <p>Resolución por fuerza bruta</p>
   </header>
 
   <main>
-    <!-- ============ COLUMNA IZQUIERDA: grafo y datos de entrada ============ -->
-    <div class="columna">
+    <!-- ============ PANEL LATERAL: procedimiento ============ -->
+    <div class="columna lateral">
 
       <section id="panel-config" class="panel">
-        <h2>1. Configurar grafo</h2>
-        <label>
-          Número de nodos (5 - 10):
+        <h2>Configurar y validar el grafo</h2>
+
+        <label class="campo">
+          Número de nodos (5 a 10)
           <input type="number" id="input-n" min="5" max="10" value="5">
         </label>
-        <p id="mensaje-n" class="mensaje-error"></p>
+        <p id="mensaje-n" class="mensaje-error" role="alert"></p>
 
-        <div class="botones">
-          <button id="btn-manual">Generar manualmente</button>
+        <div class="botones grilla">
+          <button id="btn-manual">Crear manualmente</button>
           <button id="btn-aleatorio">Generar aleatorio</button>
         </div>
 
         <div id="zona-manual" class="oculto">
-          <p>Agregue aristas (seleccione origen, destino y peso):</p>
-          <div class="botones">
-            <select id="in-origen"></select>
-            <select id="in-destino"></select>
-            <input type="number" id="in-peso" placeholder="Peso" min="1" step="1">
-            <button id="btn-agregar-arista">Agregar</button>
+          <h3>Agregar arista</h3>
+          <div class="fila-arista">
+            <label class="campo">Origen <select id="in-origen"></select></label>
+            <label class="campo">Destino <select id="in-destino"></select></label>
+            <label class="campo">Peso <input type="number" id="in-peso" min="1" step="1"></label>
           </div>
-          <p id="mensaje-arista" class="mensaje-error"></p>
+          <button id="btn-agregar-arista" class="bloque">Agregar arista</button>
+          <p id="mensaje-arista" class="mensaje-error" role="alert"></p>
           <ul id="lista-aristas"></ul>
         </div>
 
-        <button id="btn-validar" class="accion-principal">Validar grafo</button>
-        <p id="mensaje-validacion"></p>
+        <button id="btn-validar" class="accion-principal bloque">Validar grafo</button>
+        <p id="mensaje-validacion" role="status"></p>
       </section>
 
-      <section id="panel-grafo" class="panel">
-        <h2>2. Grafo generado</h2>
-        <canvas id="canvas-grafo"></canvas>
-      </section>
+      <section id="panel-ejecucion" class="panel">
+        <h2>Resolver</h2>
+        <button id="btn-resolver" class="accion-principal bloque" disabled>Resolver TSP</button>
+        <p class="ayuda">Requiere un grafo validado.</p>
 
-      <section id="panel-matriz" class="panel oculto">
-        <h2>3. Matriz de costos</h2>
-        <div class="tabla-scroll">
-          <table id="tabla-matriz"></table>
+        <div id="zona-pasos" class="oculto">
+          <h3>Recorrido paso a paso</h3>
+          <p id="texto-paso">—</p>
+          <p id="contador-paso" class="ayuda"></p>
+
+          <div class="botones grilla">
+            <button id="btn-paso-anterior">&larr; Anterior</button>
+            <button id="btn-paso-siguiente">Siguiente &rarr;</button>
+            <button id="btn-play-pausa" class="accion-principal ancho-total">Reproducir</button>
+          </div>
+
+          <div class="botones">
+            <label class="inline">
+              Velocidad
+              <select id="select-velocidad">
+                <option value="1000">Lenta</option>
+                <option value="400" selected>Normal</option>
+                <option value="120">Rápida</option>
+                <option value="30">Muy rápida</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="botones">
+            <label class="inline">
+              Ir a la ruta N.º
+              <input type="number" id="input-ir-a-ruta" min="1" style="width: 90px;">
+            </label>
+            <button id="btn-ir-a-ruta">Ir</button>
+          </div>
         </div>
       </section>
 
     </div>
 
-    <!-- ============ COLUMNA DERECHA: ejecución y resultados ============ -->
-    <div class="columna">
+    <!-- ============ ÁREA DE TRABAJO: grafo y resultados ============ -->
+    <div class="columna trabajo">
 
-      <section id="panel-ejecucion" class="panel">
-        <h2>4. Resolver</h2>
-        <button id="btn-resolver" class="accion-principal" disabled>Resolver TSP</button>
-        <p class="ayuda">Valide el grafo antes de resolver.</p>
+      <section id="panel-grafo" class="panel">
+        <h2>Grafo</h2>
+        <canvas id="canvas-grafo"></canvas>
+        <ul class="leyenda">
+          <li class="l-evaluando">Ruta evaluada</li>
+          <li class="l-optimo">Ciclo óptimo</li>
+          <li class="l-faltante">Arista inexistente</li>
+        </ul>
+      </section>
 
-        <div id="zona-pasos" class="oculto">
+      <section id="panel-resultado" class="panel oculto">
+        <h2>Resultado óptimo</h2>
+        <p id="texto-resultado"></p>
+      </section>
 
-          <div class="sub-panel">
-            <p class="etiqueta-sub">Recorrido paso a paso</p>
-            <p id="texto-paso">—</p>
-
-            <div class="botones">
-              <button id="btn-paso-anterior">&larr; Anterior</button>
-              <span id="contador-paso"></span>
-              <button id="btn-paso-siguiente">Siguiente &rarr;</button>
-            </div>
-
-            <div class="botones">
-              <button id="btn-play-pausa">&#9654; Reproducir</button>
-              <label class="inline">
-                Velocidad:
-                <select id="select-velocidad">
-                  <option value="1000">Lenta</option>
-                  <option value="400" selected>Normal</option>
-                  <option value="120">Rápida</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="botones">
-              <label class="inline">
-                Ir a la ruta N.º
-                <input type="number" id="input-ir-a-ruta" min="0" style="width: 80px;">
-              </label>
-              <button id="btn-ir-a-ruta">Ir</button>
-            </div>
-          </div>
-
+      <section id="panel-matriz" class="panel oculto">
+        <h2>Matriz de costos</h2>
+        <div class="tabla-scroll">
+          <table id="tabla-matriz"></table>
         </div>
       </section>
 
       <section id="panel-tabla-resultados" class="panel oculto">
-        <h2>5. Tabla comparativa de ciclos</h2>
+        <h2>Ciclos hamiltonianos</h2>
 
         <div class="botones controles-tabla">
           <label class="inline">
-            Mostrar:
+            Mostrar
             <select id="select-modo-tabla">
               <option value="mejores" selected>Mejores rutas</option>
               <option value="peores">Peores rutas</option>
@@ -116,7 +126,7 @@
           </label>
 
           <label class="inline">
-            Filas por página:
+            Filas por página
             <select id="select-tamano-pagina">
               <option value="10" selected>10</option>
               <option value="20">20</option>
@@ -142,11 +152,6 @@
           <span id="texto-paginacion"></span>
           <button id="btn-pagina-siguiente">&rarr;</button>
         </div>
-      </section>
-
-      <section id="panel-resultado" class="panel oculto">
-        <h2>6. Resultado óptimo</h2>
-        <p id="texto-resultado"></p>
       </section>
 
     </div>

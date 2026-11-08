@@ -30,9 +30,9 @@ def main():
         title="TSP - Problema del Agente Viajero (Fuerza Bruta)",
         url=ruta_recurso("frontend/index.html"),
         js_api=api,
-        width=1100,
-        height=750,
-        min_size=(900, 600),
+        width=1280,
+        height=800,
+        min_size=(1000, 640),
     )
     webview.start(debug=False)
 

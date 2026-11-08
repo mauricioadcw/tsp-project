@@ -68,6 +68,7 @@ class ResolverTSP:
             if valido:
                 self.ciclos_validos.append({
                     "id": len(self.ciclos_validos),  # posición entre los ciclos VÁLIDOS
+                    "indice_ruta": indice,  # posición entre TODAS las permutaciones (0-based); permite saltar al paso
                     "ruta": ruta,
                     "costo": costo
                 })

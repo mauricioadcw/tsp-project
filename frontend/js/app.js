@@ -15,6 +15,7 @@ let nActual = 0;
 let pasoActualIndice = 0;
 let totalPasos = 0;
 let totalCiclos = 0;
+let costoOptimo = null;
 
 // Estado de la tabla comparativa
 let tablaModo = "mejores";
@@ -167,6 +168,7 @@ function iniciarApp(api) {
     if (res.ok) {
       mensajeArista.textContent = "";
       grafoActual = res.grafo;
+      reiniciarFlujoDesdeConfig();
       dibujarGrafo(grafoActual);
       refrescarListaAristas();
       inputPeso.value = "";
@@ -187,6 +189,7 @@ function iniciarApp(api) {
         const res = await api.eliminar_arista(arista.origen, arista.destino);
         if (res.ok) {
           grafoActual = res.grafo;
+          reiniciarFlujoDesdeConfig();
           dibujarGrafo(grafoActual);
           refrescarListaAristas();
         }
@@ -213,6 +216,7 @@ function iniciarApp(api) {
     reiniciarFlujoDesdeConfig();
     dibujarGrafo(grafoActual);
     mensajeValidacion.textContent = "Grafo aleatorio generado. Valídelo antes de resolver.";
+    mensajeValidacion.dataset.tipo = "info";
   });
 
   // ===========================================================
@@ -222,24 +226,24 @@ function iniciarApp(api) {
   document.getElementById("btn-validar").addEventListener("click", async () => {
     if (!grafoActual) {
       mensajeValidacion.textContent = "Primero genere un grafo.";
-      mensajeValidacion.style.color = "#b91c1c";
+      mensajeValidacion.dataset.tipo = "error";
       return;
     }
 
     const res = await api.validar_hamiltoniano();
     if (!res.ok) {
       mensajeValidacion.textContent = res.error;
-      mensajeValidacion.style.color = "#b91c1c";
+      mensajeValidacion.dataset.tipo = "error";
       return;
     }
 
     if (res.valido) {
-      mensajeValidacion.textContent = "✅ El grafo contiene al menos un ciclo hamiltoniano.";
-      mensajeValidacion.style.color = "#16803c";
+      mensajeValidacion.textContent = "El grafo contiene al menos un ciclo hamiltoniano.";
+      mensajeValidacion.dataset.tipo = "ok";
       btnResolver.disabled = false;
       await mostrarMatrizCostos();
     } else {
-      let texto = "⚠️ El grafo no admite un ciclo hamiltoniano.";
+      let texto = "El grafo no admite un ciclo hamiltoniano.";
       if (res.sugerencias.length > 0) {
         texto += " Aristas sugeridas: " + res.sugerencias.join(", ");
       }
@@ -247,7 +251,7 @@ function iniciarApp(api) {
         texto += " " + res.mensaje_extra;
       }
       mensajeValidacion.textContent = texto;
-      mensajeValidacion.style.color = "#b91c1c";
+      mensajeValidacion.dataset.tipo = "error";
       btnResolver.disabled = true;
       panelMatriz.classList.add("oculto");
     }
@@ -290,7 +294,11 @@ function iniciarApp(api) {
   // ===========================================================
 
   btnResolver.addEventListener("click", async () => {
+    btnResolver.disabled = true;
+    btnResolver.textContent = "Resolviendo…";
     const res = await api.resolver_tsp_completo();
+    btnResolver.textContent = "Resolver TSP";
+    btnResolver.disabled = false;
     if (!res.ok) {
       alert(res.error);
       return;
@@ -301,7 +309,8 @@ function iniciarApp(api) {
     pasoActualIndice = 0;
 
     zonaPasos.classList.remove("oculto");
-    inputIrARuta.max = Math.max(0, totalCiclos - 1);
+    inputIrARuta.min = 1;
+    inputIrARuta.max = Math.max(1, totalPasos - 2);
 
     await mostrarPaso(pasoActualIndice);
 
@@ -314,6 +323,7 @@ function iniciarApp(api) {
 
       panelResultado.classList.remove("oculto");
       const optimo = res.resumen.ciclo_optimo;
+      costoOptimo = optimo.costo;
       const rutaLetras = optimo.ruta.map(etiquetaLetra).join(" → ");
       textoResultado.textContent =
         `Ciclo óptimo: ${rutaLetras} (costo = ${optimo.costo}) ` +
@@ -366,7 +376,7 @@ function iniciarApp(api) {
 
   function iniciarReproduccion() {
     reproduciendo = true;
-    btnPlayPausa.textContent = "⏸ Pausar";
+    btnPlayPausa.textContent = "Pausar";
     const intervalo = parseInt(selectVelocidad.value, 10);
 
     temporizadorReproduccion = setInterval(async () => {
@@ -381,7 +391,7 @@ function iniciarApp(api) {
 
   function detenerReproduccion() {
     reproduciendo = false;
-    btnPlayPausa.textContent = "▶ Reproducir";
+    btnPlayPausa.textContent = "Reproducir";
     if (temporizadorReproduccion) {
       clearInterval(temporizadorReproduccion);
       temporizadorReproduccion = null;
@@ -432,6 +442,13 @@ function iniciarApp(api) {
   // Tabla comparativa de ciclos (paginada)
   // ===========================================================
 
+  // Desde la tabla ya se conoce el resultado: si el ciclo tiene el costo mínimo
+  // (incluye empates) se muestra en verde; el resto, en ámbar como en el recorrido.
+  function dibujarRutaDeTabla(ciclo) {
+    const esOptimo = ciclo.costo === costoOptimo;
+    dibujarGrafo(grafoActual, esOptimo ? ciclo.ruta : null, esOptimo ? null : ciclo.ruta);
+  }
+
   async function cargarTablaResultados() {
     const res = await api.obtener_tabla_ciclos(tablaModo, tablaPagina, tablaTamanoPagina);
     if (!res.ok) return;
@@ -449,11 +466,22 @@ function iniciarApp(api) {
       if (ciclo.id === idPeor) tr.classList.add("fila-peor");
 
       const rutaLetras = ciclo.ruta.map(etiquetaLetra).join(" → ");
-      tr.innerHTML = `<td>${ciclo.id}</td><td>${rutaLetras}</td><td>${ciclo.costo}</td>`;
+      // El # coincide con "Ir a la ruta N.º" (1-based, entre todas las permutaciones evaluadas)
+      tr.innerHTML = `<td>${ciclo.indice_ruta + 1}</td><td>${rutaLetras}</td><td>${ciclo.costo}</td>`;
 
-      // Click en una fila: la resalta en el grafo
-      tr.addEventListener("click", () => {
-        dibujarGrafo(grafoActual, null, ciclo.ruta);
+      // Click en una fila: salta a ese paso en el recorrido y lo resalta en el grafo
+      tr.addEventListener("click", async () => {
+        detenerReproduccion();
+        const salto = await api.saltar_a_ruta(ciclo.indice_ruta);
+        if (!salto.ok) {
+          dibujarRutaDeTabla(ciclo);
+          return;
+        }
+        pasoActualIndice = salto.indice_pasos;
+        textoPaso.textContent = salto.paso.mensaje;
+        contadorPaso.textContent = `Paso ${pasoActualIndice + 1} / ${salto.total_pasos}`;
+        dibujarRutaDeTabla(ciclo);
+        document.getElementById("panel-grafo").scrollIntoView({ behavior: "smooth", block: "nearest" });
       });
 
       cuerpoTablaResultados.appendChild(tr);

@@ -31,7 +31,10 @@ class Api:
         if self.grafo is None:
             return {"ok": False, "error": "Primero debe crear el grafo"}
         try:
-            self.grafo.agregar_arista(int(i), int(j), float(peso))
+            peso_num = float(peso)
+            if peso_num.is_integer():
+                peso_num = int(peso_num)  # evita mostrar 5.0 en vez de 5
+            self.grafo.agregar_arista(int(i), int(j), peso_num)
             return {"ok": True, "grafo": self.grafo.a_dict()}
         except (ValueError, TypeError) as e:
             return {"ok": False, "error": str(e)}
