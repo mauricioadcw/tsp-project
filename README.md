@@ -124,23 +124,6 @@ Probar siempre `TSP-AgenteViajero.exe` directamente antes de distribuirlo,
 para confirmar que carga la interfaz correctamente fuera del entorno de
 desarrollo.
 
-## Estado actual (avance semana 6)
-
-- [x] Generación de grafo manual y aleatoria
-- [x] Validación exacta de hamiltonicidad (backtracking)
-- [x] Algoritmo de fuerza bruta con historial de pasos
-- [x] Matriz de costos visible
-- [x] Tabla comparativa de ciclos (paginada, mejores/peores/orden de generación)
-- [x] Interfaz interactiva paso a paso con resaltado visual, reproducción
-      automática y salto directo a una ruta
-- [x] Manejo de errores en inputs (n fuera de rango, aristas duplicadas/inválidas)
-- [x] Rediseño de la interfaz (panel lateral de procedimiento + área de trabajo)
-- [ ] Empaquetar versión final como .exe con Nuitka (con debug=False)
-- [ ] Redactar informe: introducción, objetivo, metodología con capturas
-      de código en formato APA (ver ejemplo de "Teoría de Juegos")
-- [ ] Bibliografía sobre TSP y algoritmos de fuerza bruta
-- [ ] Diagrama de flujo del programa (para el informe)
-
 ## Notas técnicas
 
 - El grafo es **no dirigido** (matriz de adyacencia simétrica).
